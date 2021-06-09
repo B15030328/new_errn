@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option go_package ="error_test/errn;errn";
+
+package errn;
+
+message Error {
+  int32  errs= 1;
+  string message = 2;
+};
+
+
+
