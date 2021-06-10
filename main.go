@@ -2,7 +2,6 @@ package main
 
 import (
 	"error_test/errn"
-	"fmt"
 	"net/http"
 
 	"git.dz11.com/vega/minerva/server/echo"
@@ -18,7 +17,6 @@ func main() {
 		Errs:    2001,
 		Message: "333",
 	}
-	fmt.Println(err)
 }
 
 func JsonTest(c echo.Context) error {

@@ -24,8 +24,6 @@ func ConvertJson(err error, msg string, data interface{}) JSONResult {
 	}
 }
 
-func (e Error) ConvertProto() (int, string) {
-	err := e.GetErrs()
-	msg := e.GetMessage()
-	return int(err), msg
+func ErrorConvert(err error) *Error {
+	return FromError(err)
 }

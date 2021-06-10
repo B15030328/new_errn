@@ -3,6 +3,9 @@ package errn
 import (
 	"encoding/json"
 
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/status"
+
 	"google.golang.org/protobuf/proto"
 )
 
@@ -15,22 +18,8 @@ func (e Error) Error() string {
 	return e.Message
 }
 
-//// ResetMsg 重置msg
-//func (e *Error) ResetMsg(msg string) *Error {
-//	Msgs[int(e.Errs)] = msg
-//	e.Message = msg
-//	return e
-//}
-
 // New returns an error object for the code, message.
 func New(code int, message string) *Error {
-	//1、判断该code是否已绑定错误信息
-	if _, ok := Msgs[code]; ok {
-		panic("code has been difined")
-		//return nil, errors.New("code has been difined")
-	}
-	//2、写入Msg并返回Error对象
-	Msgs[code] = message
 	return &Error{
 		Message: message,
 		Errs:    int32(code),
@@ -53,12 +42,11 @@ func FromError(err error) *Error {
 	if err == nil {
 		return nil
 	}
-	for k, v := range Msgs {
-		if v == err.Error() {
-			return &Error{
-				Errs:    int32(k),
-				Message: err.Error(),
-			}
+	gs, ok := status.FromError(err)
+	if ok {
+		return &Error{
+			Errs:    ErrsFromGRPCCode(gs.Code()), //暂时写死测试，马上要修改
+			Message: gs.Message(),
 		}
 	}
 	return &Error{
@@ -67,12 +55,17 @@ func FromError(err error) *Error {
 	}
 }
 
-// FromProto returns a proto.
-func FromProto(ms []byte) *Error {
-	se := new(Error)
-	err := proto.Unmarshal(ms, se)
-	if err != nil {
-		panic("FromProto error")
-	}
-	return se
+// StatusCode return an HTTP error code.
+func (e *Error) StatusCode() int {
+	return int(e.Errs)
+}
+
+// GRPCStatus returns the Status represented by se.
+func (e *Error) GRPCStatus() *status.Status {
+	s, _ := status.New(GRPCCodeFromeErrs(e.Errs), e.Message). //这里其实不能写死
+									WithDetails(&errdetails.ErrorInfo{
+			Reason:   "",
+			Metadata: nil,
+		})
+	return s
 }

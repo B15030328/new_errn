@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"error_test/errn"
 	pb "error_test/grpcdemo"
 	"fmt"
 
@@ -27,8 +28,9 @@ func main() {
 	reqBody.Status = "test status"
 	reply, err := c.SayHello(context.Background(), reqBody)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
+		error := errn.ErrorConvert(err)
+		fmt.Println(error.GetErrs(), error.GetMessage())
 	}
-	err, msg := reply.Err.ConvertProto()
-	fmt.Println(reply.Err.GetErrs(), reply.Err.GetMessage(), reply.GetData())
+	fmt.Println("no reply", reply.GetData())
 }

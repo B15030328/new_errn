@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "errn/errors.proto";
-
 option go_package ="./grpcdemo;hello";
 
 package grpcdemo;
@@ -16,8 +14,7 @@ message HelloRequest{
 }
 
 message HelloReply{
-  errn.Error err = 1;
-  string data = 2;
+  string data = 1;
 }
 
 

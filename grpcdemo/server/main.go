@@ -4,11 +4,8 @@ import (
 	"context"
 	"error_test/errn"
 	pb "error_test/grpcdemo"
-	"errors"
 	"fmt"
 	"net"
-
-	"google.golang.org/grpc/reflection"
 
 	"google.golang.org/grpc"
 )
@@ -22,9 +19,10 @@ type helloService struct{}
 
 func (h helloService) SayHello(ctx context.Context, request *pb.HelloRequest) (*pb.HelloReply, error) {
 	resp := new(pb.HelloReply)
-	resp.Err = errn.FromError(errors.New(request.Status))
+	Err := errn.Forbidden
+	//Err := status.Error(codes.Aborted, "status error")
 	resp.Data = "test data"
-	return resp, nil
+	return resp, Err
 }
 
 var HelloServer = helloService{}
@@ -37,7 +35,6 @@ func main() {
 
 	//实现gRPC Server
 	s := grpc.NewServer()
-	reflection.Register(s)
 	//注册helloServer为客户端提供服务
 	pb.RegisterHelloServer(s, HelloServer) //内部调用了s.RegisterServer()
 	fmt.Println("Listen on" + Address)
